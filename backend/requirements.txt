@@ -1,0 +1,9 @@
+fastapi[all]
+httpx[http2]
+google-auth
+google-auth-oauthlib
+python-multipart
+pydantic
+uvicorn
+pytest
+pytest-asyncio
