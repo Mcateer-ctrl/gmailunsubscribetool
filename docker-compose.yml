@@ -1,13 +1,33 @@
 version: '3.8'
 services:
   backend:
-    build: ./backend
-    env_file: ./backend/.env
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
     ports:
-      - '8000:8000'
-    depends_on:
-      - frontend
+      - "8000:8000"
+    # make sure uvicorn binds to 0.0.0.0
+    command: >
+      uvicorn src.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    volumes:
+      - ./backend/src:/app/src       # for live-reload in dev
+    # no depends_on here — backend can start on its own
+
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+    env_file:
+      - ./frontend/.env             # if you have client-side vars (e.g. VITE_API_URL)
     ports:
-      - '3000:3000'
+      - "3000:3000"
+    # tell Vite to listen on all interfaces
+    command: >
+      sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    volumes:
+      - ./frontend/src:/app/src     # for live code updates
+    depends_on:
+      - backend                     # wait for backend container to start
